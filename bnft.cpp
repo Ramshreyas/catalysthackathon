@@ -64,7 +64,14 @@ ACTION nft::issue( name to,
         
     // Mint nfts
     for(auto const& uri: uris) {
-        mint( to, asset{1, symbol}, uri, tkn_name);
+        //Check if uri is unique
+        auto uri_index = tokens.get_index<"byuri"_n>();
+        auto check_uri = uri_index.lower_bound(uri);
+        eosio_assert(check_uri == uri_index.end(), "Token is not unique!");
+
+        if (check_uri == uri_index.end()) {
+            mint( to, asset{1, symbol}, uri, tkn_name);
+        }
     }
 
     // Add balance to account

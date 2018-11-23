@@ -98,7 +98,8 @@ CONTRACT nft : public eosio::contract {
 
 	using token_index = eosio::multi_index<"token"_n, token,
                                            indexed_by< "byowner"_n, const_mem_fun< token, uint64_t, &token::get_owner> >,
-                                           indexed_by< "bysymbol"_n, const_mem_fun< token, uint64_t, &token::get_symbol> > >;
+                                           indexed_by< "bysymbol"_n, const_mem_fun< token, uint64_t, &token::get_symbol> >,
+                                           indexed_by<"byuri"_n, const_mem_fun< token, uint64_t, &token::get_uri> > >;
     
     private:
 	token_index tokens;
