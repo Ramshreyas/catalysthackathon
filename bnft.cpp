@@ -61,17 +61,16 @@ ACTION nft::issue( name to,
 
     // Check that number of tokens matches uri size
     eosio_assert( quantity.amount == uris.size(), "mismatch between number of tokens and uris provided" );
-        
+
     // Mint nfts
     for(auto const& uri: uris) {
         //Check if uri is unique
         auto uri_index = tokens.get_index<"byuri"_n>();
         auto check_uri = uri_index.find(uri);
+
         eosio_assert(check_uri == uri_index.end(), "Token is not unique!");
 
-        if (check_uri == uri_index.end()) {
-            mint( to, asset{1, symbol}, uri, tkn_name);
-        }
+        mint( to, asset{1, symbol}, uri, tkn_name);
     }
 
     // Add balance to account
@@ -212,23 +211,25 @@ ACTION nft::setrampayer(name payer, id_type id) {
 
 ACTION nft::burn( name owner, id_type token_id ) {
 
-        require_auth( owner );
+    require_auth( owner );
 
-        // Find token to burn
-        auto burn_token = tokens.find( token_id );
+    // Find token to burn
+    auto burn_token = tokens.find( token_id );
 	eosio_assert( burn_token != tokens.end(), "token with id does not exist" );
 	eosio_assert( burn_token->owner == owner, "token not owned by account" );
 
 	asset burnt_supply = burn_token->value;
 
 	// Remove token from tokens table
-        tokens.erase( burn_token );
+    tokens.erase( burn_token );
 
-        // Lower balance from owner
-        sub_balance( owner, burnt_supply );
+    // Lower balance from owner
+    sub_balance( owner, burnt_supply );
 
-        // Lower supply from currency
-        sub_supply( burnt_supply );
+    // Lower supply from currency
+    sub_supply( burnt_supply );
+
+    //Pay owner
 }
 
 
