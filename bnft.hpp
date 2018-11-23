@@ -8,7 +8,7 @@ using std::string;
 using std::vector;
 typedef uint128_t uuid;
 typedef uint64_t id_type;
-typedef string uri_type;
+typedef uint64_t uri_type;
 
 CONTRACT nft : public eosio::contract {
 
@@ -21,23 +21,23 @@ CONTRACT nft : public eosio::contract {
         ACTION create(name issuer, std::string symbol);
 
         ACTION issue(name to,
-                   asset quantity,
-                   vector<string> uris,
-		   string name,
-                   string memo);
+                     asset quantity,
+                     vector<int> uris,
+                     string name,
+                     string memo);
 
         ACTION transferid(name from,
-                      name to,
-                      id_type id,
-                      string memo);
+                          name to,
+                          id_type id,
+                          string memo);
 
 	ACTION transfer(name from,
-                      name to,
-                      asset quantity,
-                      string memo);
+                    name to,
+                    asset quantity,
+                    string memo);
 
         ACTION burn(name owner,
-                  id_type token_id);
+                    id_type token_id);
 
 	ACTION setrampayer(name payer, id_type id);
 
@@ -61,14 +61,15 @@ CONTRACT nft : public eosio::contract {
 
         TABLE token {
             id_type id;          // Unique 64 bit identifier,
-            uri_type uri;        // RFC 3986
+            int uri;        // RFC 3986
             name owner;  	 // token owner
             asset value;         // token value (1 SYS)
 	    string tokenName;	 // token name
 
             id_type primary_key() const { return id; }
             uint64_t get_owner() const { return owner.value; }
-            string get_uri() const { return uri; }
+            //string get_uri() const { return uri; }
+            uint64_t get_uri() const { return uri; }
             asset get_value() const { return value; }
 	    uint64_t get_symbol() const { return value.symbol.code().raw(); }
 	    string get_name() const { return tokenName; }
@@ -96,14 +97,14 @@ CONTRACT nft : public eosio::contract {
 	                       indexed_by< "byissuer"_n, const_mem_fun< stats, uint64_t, &stats::get_issuer> > >;
 
 	using token_index = eosio::multi_index<"token"_n, token,
-	                    indexed_by< "byowner"_n, const_mem_fun< token, uint64_t, &token::get_owner> >,
-			    indexed_by< "bysymbol"_n, const_mem_fun< token, uint64_t, &token::get_symbol> > >;
-
+                                           indexed_by< "byowner"_n, const_mem_fun< token, uint64_t, &token::get_owner> >,
+                                           indexed_by< "bysymbol"_n, const_mem_fun< token, uint64_t, &token::get_symbol> > >;
+    
     private:
 	token_index tokens;
 
     //void mint(name owner, name ram_payer, asset value, string uri, string name);
-    void mint(name owner, asset value, string uri, string name);
+    void mint(name owner, asset value, int uri, string name);
         
     void sub_balance(name owner, asset value);
     void add_balance(name owner, asset value, name ram_payer);

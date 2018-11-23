@@ -28,47 +28,47 @@ ACTION nft::create( name issuer, std::string sym ) {
 }
 
 ACTION nft::issue( name to,
-                     asset quantity,
-                     vector<string> uris,
-		     string tkn_name,
-                     string memo) {
+                   asset quantity,
+                   vector<int> uris,
+                   string tkn_name,
+                   string memo) {
 
 	eosio_assert( is_account( to ), "to account does not exist");
 
-        // e,g, Get EOS from 3 EOS
-        auto symbol = quantity.symbol;
-        eosio_assert( symbol.is_valid(), "invalid symbol name" );
-        eosio_assert( symbol.precision() == 0, "quantity must be a whole number" );
-        eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
+    // e,g, Get EOS from 3 EOS
+    auto symbol = quantity.symbol;
+    eosio_assert( symbol.is_valid(), "invalid symbol name" );
+    eosio_assert( symbol.precision() == 0, "quantity must be a whole number" );
+    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
 
 	eosio_assert( tkn_name.size() <= 32, "name has more than 32 bytes" );
 
-        // Ensure currency has been created
-        auto symbol_name = symbol.code().raw();
-        currency_index currency_table( _self, symbol_name );
-        auto existing_currency = currency_table.find( symbol_name );
-        eosio_assert( existing_currency != currency_table.end(), "token with symbol does not exist. create token before issue" );
-        const auto& st = *existing_currency;
+    // Ensure currency has been created
+    auto symbol_name = symbol.code().raw();
+    currency_index currency_table( _self, symbol_name );
+    auto existing_currency = currency_table.find( symbol_name );
+    eosio_assert( existing_currency != currency_table.end(), "token with symbol does not exist. create token before issue" );
+    const auto& st = *existing_currency;
 
-        // Ensure have issuer authorization and valid quantity
-        //require_auth( st.issuer );
-        eosio_assert( quantity.is_valid(), "invalid quantity" );
-        eosio_assert( quantity.amount > 0, "must issue positive quantity of NFT" );
-        eosio_assert( symbol == st.supply.symbol, "symbol precision mismatch" );
+    // Ensure have issuer authorization and valid quantity
+    //require_auth( st.issuer );
+    eosio_assert( quantity.is_valid(), "invalid quantity" );
+    eosio_assert( quantity.amount > 0, "must issue positive quantity of NFT" );
+    eosio_assert( symbol == st.supply.symbol, "symbol precision mismatch" );
 
-        // Increase supply
+    // Increase supply
 	add_supply( quantity );
 
-        // Check that number of tokens matches uri size
-        eosio_assert( quantity.amount == uris.size(), "mismatch between number of tokens and uris provided" );
+    // Check that number of tokens matches uri size
+    eosio_assert( quantity.amount == uris.size(), "mismatch between number of tokens and uris provided" );
+        
+    // Mint nfts
+    for(auto const& uri: uris) {
+        mint( to, asset{1, symbol}, uri, tkn_name);
+    }
 
-        // Mint nfts
-        for(auto const& uri: uris) {
-            mint( to, asset{1, symbol}, uri, tkn_name);
-        }
-
-        // Add balance to account
-        add_balance( to, quantity, st.issuer );
+    // Add balance to account
+    add_balance( to, quantity, st.issuer );
 }
 
 
@@ -76,52 +76,52 @@ ACTION nft::transferid( name	from,
                         name 	to,
                         id_type	id,
                         string	memo ) {
-        // Ensure authorized to send from account
-        eosio_assert( from != to, "cannot transfer to self" );
-        require_auth( from );
+    // Ensure authorized to send from account
+    eosio_assert( from != to, "cannot transfer to self" );
+    require_auth( from );
 
-        // Ensure 'to' account exists
-        eosio_assert( is_account( to ), "to account does not exist");
+    // Ensure 'to' account exists
+    eosio_assert( is_account( to ), "to account does not exist");
 
 	// Check memo size and print
-        eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
+    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
 
-        // Ensure token ID exists
-        auto send_token = tokens.find( id );
-        eosio_assert( send_token != tokens.end(), "token with specified ID does not exist" );
+    // Ensure token ID exists
+    auto send_token = tokens.find( id );
+    eosio_assert( send_token != tokens.end(), "token with specified ID does not exist" );
 
 	// Ensure owner owns token
-        eosio_assert( send_token->owner == from, "sender does not own token with specified ID");
-
+    eosio_assert( send_token->owner == from, "sender does not own token with specified ID");
+    
 	const auto& st = *send_token;
 
 	// Notify both recipients
-        require_recipient( from );
-        require_recipient( to );
+    require_recipient( from );
+    require_recipient( to );
 
-        // Transfer NFT from sender to receiver
-        tokens.modify( send_token, from, [&]( auto& token ) {
-	        token.owner = to;
-        });
+    // Transfer NFT from sender to receiver
+    tokens.modify( send_token, from, [&]( auto& token ) {
+                                         token.owner = to;
+                                     });
 
-        // Change balance of both accounts
-        sub_balance( from, st.value );
-        add_balance( to, st.value, from );
+    // Change balance of both accounts
+    sub_balance( from, st.value );
+    add_balance( to, st.value, from );
 }
 
 ACTION nft::transfer( name 	from,
                       name 	to,
                       asset	quantity,
                       string	memo ) {
-        // Ensure authorized to send from account
-        eosio_assert( from != to, "cannot transfer to self" );
-        require_auth( from );
+    // Ensure authorized to send from account
+    eosio_assert( from != to, "cannot transfer to self" );
+    require_auth( from );
 
-        // Ensure 'to' account exists
-        eosio_assert( is_account( to ), "to account does not exist");
+    // Ensure 'to' account exists
+    eosio_assert( is_account( to ), "to account does not exist");
 
-        // Check memo size and print
-        eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
+    // Check memo size and print
+    eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
 
 	eosio_assert( quantity.amount == 1, "cannot transfer quantity, not equal to 1" );
 
@@ -143,7 +143,7 @@ ACTION nft::transfer( name 	from,
 	eosio_assert(found, "token is not found or is not owned by account");
 
 	// Notify both recipients
-        require_recipient( from );
+    require_recipient( from );
 	require_recipient( to );
 
 	SEND_INLINE_ACTION( *this, transferid, {from, "active"_n}, {from, to, id, memo} );
@@ -152,7 +152,7 @@ ACTION nft::transfer( name 	from,
 void nft::mint( name 	owner,
                 //name 	ram_payer,
                 asset 	value,
-                string 	uri,
+                int 	uri,
                 string 	tkn_name) {
     // Add token with creator paying for RAM
     tokens.emplace(get_self(), [&]( auto& token ) {
