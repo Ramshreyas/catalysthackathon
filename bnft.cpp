@@ -66,7 +66,7 @@ ACTION nft::issue( name to,
     for(auto const& uri: uris) {
         //Check if uri is unique
         auto uri_index = tokens.get_index<"byuri"_n>();
-        auto check_uri = uri_index.lower_bound(uri);
+        auto check_uri = uri_index.find(uri);
         eosio_assert(check_uri == uri_index.end(), "Token is not unique!");
 
         if (check_uri == uri_index.end()) {
