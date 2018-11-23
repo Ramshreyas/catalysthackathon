@@ -1,4 +1,4 @@
-#include "eosio.nft.hpp"
+#include "bnft.hpp"
 using namespace eosio;
 
 ACTION nft::create( name issuer, std::string sym ) {
