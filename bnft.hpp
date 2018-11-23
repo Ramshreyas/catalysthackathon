@@ -102,10 +102,11 @@ CONTRACT nft : public eosio::contract {
     private:
 	token_index tokens;
 
-        void mint(name owner, name ram_payer, asset value, string uri, string name);
-
-        void sub_balance(name owner, asset value);
-        void add_balance(name owner, asset value, name ram_payer);
-        void sub_supply(asset quantity);
-        void add_supply(asset quantity);
+    //void mint(name owner, name ram_payer, asset value, string uri, string name);
+    void mint(name owner, asset value, string uri, string name);
+        
+    void sub_balance(name owner, asset value);
+    void add_balance(name owner, asset value, name ram_payer);
+    void sub_supply(asset quantity);
+    void add_supply(asset quantity);
 };

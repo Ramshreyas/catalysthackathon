@@ -51,7 +51,7 @@ ACTION nft::issue( name to,
         const auto& st = *existing_currency;
 
         // Ensure have issuer authorization and valid quantity
-        require_auth( st.issuer );
+        //require_auth( st.issuer );
         eosio_assert( quantity.is_valid(), "invalid quantity" );
         eosio_assert( quantity.amount > 0, "must issue positive quantity of NFT" );
         eosio_assert( symbol == st.supply.symbol, "symbol precision mismatch" );
@@ -64,7 +64,7 @@ ACTION nft::issue( name to,
 
         // Mint nfts
         for(auto const& uri: uris) {
-            mint( to, st.issuer, asset{1, symbol}, uri, tkn_name);
+            mint( to, asset{1, symbol}, uri, tkn_name);
         }
 
         // Add balance to account
@@ -150,18 +150,18 @@ ACTION nft::transfer( name 	from,
 }
 
 void nft::mint( name 	owner,
-                name 	ram_payer,
+                //name 	ram_payer,
                 asset 	value,
                 string 	uri,
-		string 	tkn_name) {
-        // Add token with creator paying for RAM
-        tokens.emplace( ram_payer, [&]( auto& token ) {
+                string 	tkn_name) {
+    // Add token with creator paying for RAM
+    tokens.emplace(get_self(), [&]( auto& token ) {
             token.id = tokens.available_primary_key();
             token.uri = uri;
             token.owner = owner;
             token.value = value;
-	    token.tokenName = tkn_name;
-        });
+            token.tokenName = tkn_name;
+                               });
 }
 
 ACTION nft::setrampayer(name payer, id_type id) {
