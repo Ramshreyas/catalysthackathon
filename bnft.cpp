@@ -220,7 +220,7 @@ ACTION nft::burn( name owner, id_type token_id ) {
 
 	asset burnt_supply = burn_token->value;
 
-	// Remove token from tokens table
+    // Remove token from tokens table
     tokens.erase( burn_token );
 
     // Lower balance from owner
