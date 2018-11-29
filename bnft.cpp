@@ -65,10 +65,18 @@ ACTION nft::issue( name to,
     // Mint nfts
     for(auto const& uri: uris) {
         //Check if uri is unique
+        bool found = false;
         auto uri_index = tokens.get_index<"byuri"_n>();
         auto check_uri = uri_index.find(uri);
 
-        eosio_assert(check_uri == uri_index.end(), "Token is not unique!");
+        //eosio_assert(check_uri == uri_index.end(), "Token is not unique!");
+
+        if(check_uri->value.symbol == quantity.symbol) {
+            found = true;
+            break;
+        }
+
+        eosio_assert(found, "Token is not unique!");
 
         mint( to, asset{1, symbol}, uri, tkn_name);
     }
