@@ -29,7 +29,7 @@ ACTION nft::create( name issuer, std::string sym ) {
 
 ACTION nft::issue( name to,
                    asset quantity,
-                   vector<int> uris,
+                   vector<uint64_t> uris,
                    string tkn_name,
                    string memo) {
 
@@ -65,17 +65,18 @@ ACTION nft::issue( name to,
     // Mint nfts
     for(auto const& uri: uris) {
         //Check if uri is unique
-        bool found = false;
+        bool found = true;
         auto uri_index = tokens.get_index<"byuri"_n>();
-        auto check_uri = uri_index.find(uri);
+        auto it = uri_index.lower_bound(uri);
 
-        //eosio_assert(check_uri == uri_index.end(), "Token is not unique!");
-
-        if(check_uri->value.symbol == quantity.symbol) {
-            found = true;
-            break;
+        for(; it != uri_index.end(); ++it) {
+            if(it->value.symbol == quantity.symbol) {
+                found = false;
+                break;
+            }
         }
 
+        // eosio_assert(rows == uri_index.end(), "Token is not unique!");
         eosio_assert(found, "Token is not unique!");
 
         mint( to, asset{1, symbol}, uri, tkn_name);
@@ -166,7 +167,7 @@ ACTION nft::transfer( name 	from,
 void nft::mint( name 	owner,
                 //name 	ram_payer,
                 asset 	value,
-                int 	uri,
+                uint64_t 	uri,
                 string 	tkn_name) {
     // Add token with creator paying for RAM
     tokens.emplace(get_self(), [&]( auto& token ) {

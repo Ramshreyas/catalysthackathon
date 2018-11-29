@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Nov 28 06:23:52 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Nov 29 11:49:46 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -54,7 +54,7 @@
                 },
                 {
                     "name": "uris",
-                    "type": "int32[]"
+                    "type": "uint64[]"
                 },
                 {
                     "name": "name",
@@ -104,7 +104,7 @@
                 },
                 {
                     "name": "uri",
-                    "type": "int32"
+                    "type": "uri_type"
                 },
                 {
                     "name": "owner",
@@ -168,6 +168,10 @@
     "types": [
         {
             "new_type_name": "id_type",
+            "type": "uint64"
+        },
+        {
+            "new_type_name": "uri_type",
             "type": "uint64"
         }
     ],

@@ -22,7 +22,7 @@ CONTRACT nft : public eosio::contract {
 
         ACTION issue(name to,
                      asset quantity,
-                     vector<int> uris,
+                     vector<uint64_t> uris,
                      string name,
                      string memo);
 
@@ -99,7 +99,7 @@ CONTRACT nft : public eosio::contract {
 private:
         token_index tokens;
 
-        void mint(name owner, asset value, int uri, string name);
+        void mint(name owner, asset value, uint64_t uri, string name);
 
         void sub_balance(name owner, asset value);
         void add_balance(name owner, asset value, name ram_payer);
